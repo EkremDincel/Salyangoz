@@ -9,7 +9,7 @@ class Parser():
         self.parser = yacc.yacc(module = self)
         
     def parse(self, text: str):
-        return self.parser.parse(text, lexer = self.lexer.lexer)
+        return ("scope", self.parser.parse(text, lexer = self.lexer.lexer))
 
     precedence = (
         ('left', 'PLUS', 'MINUS'),
