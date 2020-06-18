@@ -1,13 +1,14 @@
 from ply import yacc
+from lexer import Lexer
 
 class Parser():
 
-    def __init__(self, lexer):
+    def __init__(self, lexer: Lexer):
         self.lexer = lexer
         self.tokens = lexer.tokens
         self.parser = yacc.yacc(module = self)
         
-    def parse(self, text):
+    def parse(self, text: str):
         return self.parser.parse(text, lexer = self.lexer.lexer)
 
     precedence = (
@@ -146,6 +147,6 @@ if __name__ == "__main__":
     from lexer import Lexer
     p = Parser(Lexer())
     kod = """
-
+a=1
 """
     print(p.parse(kod))
