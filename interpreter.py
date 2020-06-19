@@ -9,10 +9,11 @@ defaultbuiltins =  {#fonksiyonlar
                     "sekizli": oct,
                     "onaltılı": hex,
                     "uzunluk": len,
+                    "ikili": bin,
                     #veri tipleri
                     "sayı": int,
                     "kesir": float,
-                    "ikili": bool,
+                    "mantıksal": bool,
                     "yazı": str,
                     "liste": list,
                     "dizi": tuple,
@@ -32,6 +33,7 @@ class Interpreter():
         self.current_scope = None
         if builtins == None:
             self.builtins = defaultbuiltins.copy()
+
         #setup sys library
         lib_path = "lib" # daha sonra kütüphane yap
         sys_lib = "sistem"
@@ -39,13 +41,13 @@ class Interpreter():
         self.sys.modüller[sys_lib] = self.sys
         self.sys.dizinler.append(lib_path)
 
-    def execute(bytecode: str, *, debug: bool = True, ):
+    def execute(self, bytecode: str, *, debug: bool = True, ):
         
         if debug:
             ...
 
 
 
-    def run(file, *, debug: bool = True, ):
+    def run(self, file, *, debug: bool = True, ):
         if debug:
             ...
