@@ -10,6 +10,6 @@ class Salyangoz:
     versiyon = (0, 1)
     dizinler = []
 
-    std_giriş: sys.stdin
-    std_çıkış: sys.stdout
-    std_hata = sys.stderr
+    std_giriş = sys.stdin
+    std_çıkış = sys.stdout
+    std_hata  = sys.stderr
