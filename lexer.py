@@ -38,6 +38,9 @@ class Lexer():
         "LT",
         "GT",
         "NE",
+        #other
+        "NEWLINE",
+        "COMMENT",
         ]
 
     t_NAME = r"\w[\w0-9_]*"
@@ -88,9 +91,20 @@ class Lexer():
     ##    t.value = literal_eval(t.value)
         return t
 
-    def t_newline(self, t):
-        r'\n+'
-        t.lexer.lineno += t.value.count("\n")
+    def t_NEWLINE(self, t):
+        r'\n'
+        t.lexer.lineno += 1
+
+    def t_COMMENT(self, t):
+        r'\#'
+        global a
+        a=t
+        try:
+            finish_of_comment = t.lexer.lexdata.index("\n", t.lexer.lexpos)
+        except ValueError:
+            t.lexer.lexpos = len(t.lexer.lexdata)
+        else:
+            t.lexer.lexpos += finish_of_comment
 
     def t_error(self, t):
         SyntaxError(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos}")

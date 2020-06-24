@@ -4,8 +4,7 @@ from parser_ import Parser
 from lexer import Lexer
 
 kod = """
-a = (1,2, 3, 4)
-
+a = 1;
 """
 
 ##bytecode = Compiler().compile_ast(Parser(Lexer()).parse(kod))

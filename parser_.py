@@ -3,7 +3,7 @@ from lexer import Lexer
 from ast import literal_eval
 import operator
 
-operator_dict = {"+": operator.add,
+operator_dict =  {"+": operator.add,
                   "-": operator.sub,
                   "/": operator.truediv,
                   "*": operator.mul,
@@ -21,8 +21,10 @@ class Parser():
         self.tokens = lexer.tokens
         self.parser = yacc.yacc(module = self)
         
-    def parse(self, text: str):
-        return ("scope", self.parser.parse(text, lexer = self.lexer.lexer))
+    def parse(self, text: str, **kwargs):
+##        return ("scope", self.parser.parse(text, lexer = self.lexer.lexer))
+        return ("scope", self.parser.parse(text, lexer = self.lexer.lexer, **kwargs))
+
 
     precedence = (
         ('left', 'EQ', 'NE', 'LT', 'GT'),
@@ -37,16 +39,26 @@ class Parser():
         "scope : '{' statements '}'"
         p[0] = ("scope", p[2])
 
+    def p_separator(self, p):
+        """separator : NEWLINE
+                     | ';' NEWLINE
+                     | ';' """
+        p[0] = p[1]
+    
     def p_empty_scope(self, p):
         "scope : '{' '}'"
         p[0] = ("scope", None)
 
     def p_statements(self, p):
-        "statements : statements statement"
+        """statements : statements statement"""
         p[0] = p[1] + (p[2],)
 
     def p_statements_last(self, p):
-        "statements : statement"
+        """statements : statement"""
+        p[0] = p[1],
+
+    def p_statement_and_separator(self, p):
+        """statement : statement separator"""
         p[0] = p[1],
 
     def p_statement(self, p):
@@ -84,9 +96,9 @@ class Parser():
         "args : args ',' eval_expr"
         p[0] = (p[3],) + p[1]
 
-    def p_args_two(self, p):
-        "args : args ',' eval_expr ','"
-        p[0] = (p[3],) + p[1]
+##    def p_args_two(self, p):
+##        "args : args ',' eval_expr ','"
+##        p[0] = (p[3],) + p[1]
 
     def p_args_last(self, p):
         "args : eval_expr"
@@ -139,6 +151,10 @@ class Parser():
     def p_tuple_literal(self, p):
         """tuple : LPAREN args RPAREN"""
         p[0] = ("tuple", p[2])
+
+    def p_one_tuple_literal(self, p):
+        """tuple : LPAREN eval_expr ',' RPAREN"""
+        p[0] = ("tuple", (p[2],))
 
     def p_list_literal(self, p):
         """list : '[' args ']'"""
@@ -195,6 +211,7 @@ if __name__ == "__main__":
     from lexer import Lexer
     p = Parser(Lexer())
     kod = """
-a=1
+[1];
+(1,)
 """
     print(p.parse(kod))
