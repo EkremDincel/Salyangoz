@@ -84,16 +84,17 @@ class Parser():
         "args : args ',' eval_expr"
         p[0] = (p[3],) + p[1]
 
+    def p_args_two(self, p):
+        "args : args ',' eval_expr ','"
+        p[0] = (p[3],) + p[1]
+
     def p_args_last(self, p):
         "args : eval_expr"
         p[0] = p[1],
-
-    def p_eval_expr_paren(self, p):
-        "eval_expr : LPAREN eval_expr RPAREN"
-        p[0] = p[2]
         
     def p_eval_expr(self, p):
         """eval_expr : var
+                     | literal
                      | const
                      | func_call
                      | compare_expr"""
@@ -128,9 +129,28 @@ class Parser():
                  | FLOAT"""
         p[0] = ("const", p[1])
 
+    def p_literal(self, p):
+        """literal : tuple
+                   | list
+                   | set
+                   | bool"""
+        p[0] = p[1]
+
+    def p_tuple_literal(self, p):
+        """tuple : LPAREN args RPAREN"""
+        p[0] = ("tuple", p[2])
+
+    def p_list_literal(self, p):
+        """list : '[' args ']'"""
+        p[0] = ("list", p[2])
+
+    def p_set_literal(self, p):
+        """set : '{' args '}'"""
+        p[0] = ("set", p[2])
+
     def p_bool_literal(self, p):
-        """const : TRUE
-                 | FALSE"""
+        """bool : TRUE
+                | FALSE"""
         p[0] = ("bool", p[1])
 
     def p_var(self, p):
@@ -144,6 +164,10 @@ class Parser():
     def p_arg_func_call(self, p):
         """func_call : eval_expr LPAREN args RPAREN"""
         p[0] = ("argcall", p[1], p[3])
+
+    def p_eval_expr_paren(self, p):
+        "eval_expr : LPAREN eval_expr RPAREN"
+        p[0] = p[2]
 
     def p_compound_expr(self, p):
         """compound_expr : if_stmt

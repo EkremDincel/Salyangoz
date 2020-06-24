@@ -59,7 +59,7 @@ class Lexer():
 
     t_ignore = " \t"
 
-    literals = ",{};"
+    literals = ",{};[]"
 
     def t_TRUE(self, t): r'doğru'; return t
     def t_FALSE(self, t): r'yanlış'; return t

@@ -4,12 +4,12 @@ from parser_ import Parser
 from lexer import Lexer
 
 kod = """
-isim = oku("Adın ne? > ")
-yaz("Merhaba", isim + "!")
+a = (1,2, 3, 4)
+
 """
 
-bytecode = Compiler().compile_ast(Parser(Lexer()).parse(kod))
+##bytecode = Compiler().compile_ast(Parser(Lexer()).parse(kod))
 
-Interpreter().execute_bytecode(bytecode)
+##Interpreter().execute_bytecode(bytecode)
 
-print(bytecode)
+print(Parser(Lexer()).parse(kod))
