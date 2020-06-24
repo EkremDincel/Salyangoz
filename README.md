@@ -5,13 +5,13 @@ Salyangoz dili.
 
 ## Değişken atama
 
-````
+````python
 değişken_ismi = değer
 ````
 
 ## Fonksiyon çağırma
 
-````
+````python
 fonksiyon()
 fonksiyon(argüman)
 fonksiyon(argüman1, argüman2)
