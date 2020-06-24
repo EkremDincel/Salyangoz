@@ -4,7 +4,8 @@ from parser_ import Parser
 from lexer import Lexer
 
 kod = """
-yaz(1+3>2)
+isim = oku("Adın ne? > ")
+yaz("Merhaba", isim + "!")
 """
 
 bytecode = Compiler().compile_ast(Parser(Lexer()).parse(kod))

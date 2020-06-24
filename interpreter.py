@@ -3,7 +3,7 @@ import api
 from bcinterpreter import ByteCodeInterpreter
 
 defaultbuiltins =  {#fonksiyonlar
-                    "yaz": print,
+                    "yaz": print, # hallet
                     "oku": input,
                     "aç": open,
                     "mutlak_değer": abs,
@@ -41,7 +41,7 @@ class Interpreter(ByteCodeInterpreter):
         #setup sys library
         lib_path = "lib" # daha sonra kütüphane yap
         sys_lib = "sistem"
-        self.sistem = api.loadmodule(sys_lib, (lib_path,)) 
+        self.sistem = api.loadmodule(sys_lib, (lib_path,), self) 
         self.sistem.modüller[sys_lib] = self.sistem
         self.sistem.dizinler.append(lib_path)
 
