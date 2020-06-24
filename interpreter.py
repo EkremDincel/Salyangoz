@@ -11,6 +11,7 @@ defaultbuiltins =  {#fonksiyonlar
                     "onaltılı": hex,
                     "uzunluk": len,
                     "ikili": bin,
+                    "tür": type,
                     #veri tipleri
                     "sayı": int,
                     "kesir": float,

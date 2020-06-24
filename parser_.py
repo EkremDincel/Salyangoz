@@ -1,5 +1,18 @@
 from ply import yacc
 from lexer import Lexer
+from ast import literal_eval
+import operator
+
+operator_dict = {"+": operator.add,
+                  "-": operator.sub,
+                  "/": operator.truediv,
+                  "*": operator.mul,
+                  "**": operator.pow,
+                  "<": operator.lt,
+                  ">": operator.gt,
+                  "==": operator.eq,
+                  "!=": operator.ne,}
+
 
 class Parser():
 
@@ -14,7 +27,8 @@ class Parser():
     precedence = (
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
-        ('left', 'EQ', 'NE', 'LT', 'GT')
+        ('left', 'POWER'),
+        ('left', 'EQ', 'NE', 'LT', 'GT'),
         )
 
     start = "statements"
@@ -89,10 +103,11 @@ class Parser():
         """eval_expr : eval_expr TIMES eval_expr
                      | eval_expr DIVIDE eval_expr
                      | eval_expr PLUS eval_expr
-                     | eval_expr MINUS eval_expr"""
+                     | eval_expr MINUS eval_expr
+                     | eval_expr POWER eval_expr"""
         f, s = p[1], p[3]
         if f[0] == s[0] == "const":
-            p[0] = ("const", str(operantor_dict[p[2]](literal_eval(f[1]), literal_eval(s[1]))))
+            p[0] = ("const", str(operator_dict[p[2]](literal_eval(f[1]), literal_eval(s[1]))))
         else:
             p[0] = ("op", p[2], s, f)
 
@@ -101,6 +116,11 @@ class Parser():
                  | STRING
                  | FLOAT"""
         p[0] = ("const", p[1])
+
+    def p_bool_literal(self, p):
+        """const : TRUE
+                 | FALSE"""
+        p[0] = ("bool", p[1])
 
     def p_var(self, p):
         """var : NAME"""
@@ -140,8 +160,8 @@ class Parser():
 
     def p_error(self, p):
         if p is None:
-            raise SyntaxError(p)
-        print(f"Illegal token {p.value!r} of type {p.type!r} at {p.lineno}:{p.lexpos}")
+            raise SyntaxError()
+        raise SyntaxError(f"Illegal token {p.value!r} of type {p.type!r} at {p.lineno}:{p.lexpos}")
 
 if __name__ == "__main__":
     from lexer import Lexer

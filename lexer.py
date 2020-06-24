@@ -24,11 +24,15 @@ class Lexer():
         "STRING",
         "NUMBER",
         "FLOAT",
+        #literals
+        "TRUE",
+        "FALSE",
         #operators
         "PLUS",
         "MINUS",
         "TIMES",
         "DIVIDE",
+        "POWER",
         #compare
         "EQ",
         "LT",
@@ -44,8 +48,9 @@ class Lexer():
 
     t_PLUS    = r'\+'
     t_MINUS   = r'-'
-    t_TIMES    = r'\*'
-    t_DIVIDE   = r'/'
+    t_TIMES   = r'\*'
+    t_DIVIDE  = r'/'
+    t_POWER   = r'\*\*'
 
     t_EQ = r"=="
     t_LT = r"<"
@@ -55,6 +60,9 @@ class Lexer():
     t_ignore = " \t"
 
     literals = ",{};"
+
+    def t_TRUE(self, t): r'doğru'; return t
+    def t_FALSE(self, t): r'yanlış'; return t
 
     def t_IF(self, t): r'eğer'; return t
     def t_THEN(self, t): r'ise'; return t
@@ -85,4 +93,4 @@ class Lexer():
         t.lexer.lineno += t.value.count("\n")
 
     def t_error(self, t):
-        print(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos}")
+        SyntaxError(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos}")

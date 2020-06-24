@@ -70,6 +70,13 @@ class Compiler():
         return "loadconst " + c + "\n"
 
     @node
+    def bool(self, c):
+        self.line_number += 1
+        if c == "doğru":
+            return "loadconst True" + "\n"
+        return "loadconst False" + "\n"
+
+    @node
     def var(self, n):
         self.line_number += 1
         return "loadname " + n + "\n"
@@ -105,13 +112,13 @@ class Compiler():
     @node
     def ifelse(self, eval_expr, if_scope, else_scope):
         condition = self.walk_node(eval_expr)
-        self.self.line_number += 1
+        self.line_number += 1
         if_s = self.walk_node(if_scope)
         self.line_number += 1
-        tail_of_if = self.self.line_number
+        tail_of_if = self.line_number
         else_s = self.walk_node(else_scope)
         jump_to_else = "jumpnif " + str(tail_of_if) + "\n"
-        pass_else = "jump " + str(self.self.line_number) + "\n"
+        pass_else = "jump " + str(self.line_number) + "\n"
         return condition + jump_to_else + if_s + pass_else + else_s
 
 
