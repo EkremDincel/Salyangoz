@@ -4,7 +4,11 @@ from parser_ import Parser
 from lexer import Lexer
 
 kod = """
-yaz(tür(1))
+yaz(1+3>2)
 """
 
-Interpreter().execute_bytecode(Compiler().compile_ast(Parser(Lexer()).parse(kod)))
+bytecode = Compiler().compile_ast(Parser(Lexer()).parse(kod))
+
+Interpreter().execute_bytecode(bytecode)
+
+print(bytecode)

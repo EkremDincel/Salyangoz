@@ -25,10 +25,10 @@ class Parser():
         return ("scope", self.parser.parse(text, lexer = self.lexer.lexer))
 
     precedence = (
+        ('left', 'EQ', 'NE', 'LT', 'GT'),
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
         ('left', 'POWER'),
-        ('left', 'EQ', 'NE', 'LT', 'GT'),
         )
 
     start = "statements"
@@ -111,6 +111,17 @@ class Parser():
         else:
             p[0] = ("op", p[2], s, f)
 
+    def p_compare(self, p):
+        """compare_expr : eval_expr EQ eval_expr
+                        | eval_expr NE eval_expr
+                        | eval_expr GT eval_expr
+                        | eval_expr LT eval_expr"""
+        f, s = p[1], p[3]
+        if f[0] == s[0] == "const":
+            p[0] = ("bool", ("yanlış", "doğru")[operator_dict[p[2]](literal_eval(f[1]), literal_eval(s[1]))]) # :P
+        else:
+            p[0] = ("cmp", p[2], s, f)
+
     def p_const(self, p):
         """const : NUMBER
                  | STRING
@@ -150,13 +161,6 @@ class Parser():
     def p_while(self, p):
         """while_stmt : eval_expr WHILE scope"""
         p[0] = ("while", p[1], p[3])
-
-    def p_compare(self, p):
-        """compare_expr : eval_expr EQ eval_expr
-                        | eval_expr NE eval_expr
-                        | eval_expr GT eval_expr
-                        | eval_expr LT eval_expr"""
-        p[0] = ("cmp", p[2], p[3], p[1])
 
     def p_error(self, p):
         if p is None:
