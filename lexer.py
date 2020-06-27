@@ -36,7 +36,7 @@ class Lexer():
         #operators
         "POWER",      # **
         "MODULO",     # %
-        "INTEGERDIV", # //
+        "FLOORDIV", # //
         "PLUS",       # +
         "MINUS",      # -
         "TIMES",      # *
@@ -66,13 +66,13 @@ class Lexer():
     t_LSQRB   = r'\{'
     t_RSQRB   = r'\}'
 
-    t_PLUS    = r'\+'
-    t_MINUS   = r'-'
-    t_TIMES   = r'\*'
-    t_INTEGERDIV = r'//'
-    t_DIVIDE  = r'/'
-    t_POWER   = r'\*\*'
-    t_MODULO  = r'%'
+    t_PLUS     = r'\+'
+    t_MINUS    = r'-'
+    t_TIMES    = r'\*'
+    t_FLOORDIV = r'//'
+    t_DIVIDE   = r'/'
+    t_POWER    = r'\*\*'
+    t_MODULO   = r'%'
     
     t_EQ = r"=="
     t_LE = r"<="

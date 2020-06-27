@@ -3,31 +3,36 @@ from lexer import Lexer
 from ast import literal_eval
 import operator
 
-operator_dict = {"+": operator.add,
+operator_dict =  {"+": operator.add,
                   "-": operator.sub,
                   "/": operator.truediv,
+                  "//": operator.floordiv,
                   "*": operator.mul,
                   "**": operator.pow,
+                  "%": operator.mod,
+                  #
                   "<": operator.lt,
                   ">": operator.gt,
+                  "<=": operator.le,
+                  ">=": operator.ge,
                   "==": operator.eq,
                   "!=": operator.ne,}
 
 
 class Parser():
+    tokens = Lexer.tokens
 
     def __init__(self, lexer: Lexer):
         self.lexer = lexer
-        self.tokens = lexer.tokens
         self.parser = yacc.yacc(module = self)
-        
+
     def parse(self, text: str):
         return ("scope", self.parser.parse(text, lexer = self.lexer.lexer))
 
     precedence = (
-        ('left', 'EQ', 'NE', 'LT', 'GT'),
+        ('left', 'EQ', 'NE', 'LT', 'GT', 'LE', 'GE'),
         ('left', 'PLUS', 'MINUS'),
-        ('left', 'TIMES', 'DIVIDE'),
+        ('left', 'TIMES', 'DIVIDE', 'MODULO', 'FLOORDIV'),
         ('left', 'POWER'),
         )
 
