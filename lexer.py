@@ -4,22 +4,28 @@ class Lexer():
 
     def __init__(self):
         self.lexer = lex.lex(module = self)
+        self.lexer.lastlexpos = 0
 
     tokens = [
         #vars
         "NAME",
         #assign
-        "EQUAL",
+        "EQUAL",  # =
         #parenthesis
-        "LPAREN",
-        "RPAREN",
+        "LPAREN", # (
+        "RPAREN", # )
+        "LBRACE", # {
+        "RBRACE", # }
+        "LSQRB",  # [
+        "RSQRB",  # ]
         #keywords        
         "IF",
         "THEN",
         "ELSE",
         "WHILE",
-        "IMPORT",
-        "IMPORTALL",
+        "AND",
+        "OR",
+        "NOT",
         #consts
         "STRING",
         "NUMBER",
@@ -28,16 +34,26 @@ class Lexer():
         "TRUE",
         "FALSE",
         #operators
-        "PLUS",
-        "MINUS",
-        "TIMES",
-        "DIVIDE",
-        "POWER",
+        "POWER",      # **
+        "MODULO",     # %
+        "INTEGERDIV", # //
+        "PLUS",       # +
+        "MINUS",      # -
+        "TIMES",      # *
+        "DIVIDE",     # /
         #compare
-        "EQ",
-        "LT",
-        "GT",
-        "NE",
+        "EQ",   # ==
+        "NE",   # !=
+        "LE",   # <=
+        "GE",   # >=
+        "LT",   # <
+        "GT",   # >
+        #other
+        "COMMA",      # ,
+        "SEMICOLON",  # ;
+        "NEWLINE",    # \n | \n\r
+        "COMMENT",    # #
+        # ekle : multiline comments
         ]
 
     t_NAME = r"\w[\w0-9_]*"
@@ -45,21 +61,32 @@ class Lexer():
 
     t_LPAREN  = r'\('
     t_RPAREN  = r'\)'
+    t_LBRACE  = r'\['
+    t_RBRACE  = r'\]'
+    t_LSQRB   = r'\{'
+    t_RSQRB   = r'\}'
 
     t_PLUS    = r'\+'
     t_MINUS   = r'-'
     t_TIMES   = r'\*'
+    t_INTEGERDIV = r'//'
     t_DIVIDE  = r'/'
     t_POWER   = r'\*\*'
-
+    t_MODULO  = r'%'
+    
     t_EQ = r"=="
+    t_LE = r"<="
+    t_GE = r">="
     t_LT = r"<"
     t_GT = r">"
     t_NE = r"!="
 
+    t_COMMA     = r","
+    t_SEMICOLON = r";"
+
     t_ignore = " \t"
 
-    literals = ",{};"
+##    literals = ""
 
     def t_TRUE(self, t): r'doğru'; return t
     def t_FALSE(self, t): r'yanlış'; return t
@@ -68,29 +95,31 @@ class Lexer():
     def t_THEN(self, t): r'ise'; return t
     def t_ELSE(self, t): r'değilse'; return t
 
-    def t_WHILE(self, t): r'iken'; return t
-
-    def t_IMPORT(self, t): r'kullan:'; return t
-    def t_IMPORTALL(self, t): r'aktar:'; return t
+    def t_WHILE(self, t): r'iken tekrarla'; return t
 
     def t_FLOAT(self, t):
-        r'\d+\.\d*|\d+\.\d*'
-    ##    t.value = float(t.value)
+        r'\d+\.\d+' # 1. and .1 are invalid
+        t.value = float(t.value)
         return t
 
     def t_NUMBER(self, t):
-        r'\d+|\d+'
-    ##    t.value = int(t.value)
+        r'\d+'
+        t.value = int(t.value)
         return t
 
-    def t_STRING(self, t):
+    def t_STRING(self, t): # needs rework
         r'''(".*?")|('.*?')'''
-    ##    t.value = literal_eval(t.value)
+        t.value = literal_eval(t.value)
         return t
 
-    def t_newline(self, t):
-        r'\n+'
-        t.lexer.lineno += t.value.count("\n")
+    def t_NEWLINE(self, t):
+        r"(\n\r|\n|\r)+" # is this OKAY?
+        if t.value.startswith("\n\r"):
+            t.lexer.lineno += len(t.value) / 2
+        else:
+            t.lexer.lineno += len(t.value)
+        self.lexer.lastlexpos = t.lexer.lexpos
+        return t
 
     def t_error(self, t):
-        SyntaxError(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos}")
+        SyntaxError(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos-self.lexer.lastlexpos}")
