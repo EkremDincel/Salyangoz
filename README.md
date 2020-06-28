@@ -106,3 +106,8 @@ i = 0
 	yaz(i)
 }
 ````
+
+
+## Lisans
+
+Lisans hakkında ayrıntılı bilgi için [LICENSE](LICENSE) dosyasına başvurun.
