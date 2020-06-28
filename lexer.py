@@ -1,12 +1,8 @@
-from ply import lex
+from sly import Lexer
 
-class Lexer():
+class Lexer(Lexer):
 
-    def __init__(self):
-        self.lexer = lex.lex(module = self)
-        self.lexer.lastlexpos = 0
-
-    tokens = [
+    tokens = {
         #vars
         "NAME",
         #assign
@@ -52,74 +48,100 @@ class Lexer():
         "COMMA",      # ,
         "SEMICOLON",  # ;
         "NEWLINE",    # \n | \n\r
-        "COMMENT",    # #
-        # ekle : multiline comments
-        ]
+##        "COMMENT",    # #
+        "DOT",        # .
+        "COLON",      # :
+##        "BLOCKCOMMENT" # <- -> # can nest in another block comment and multiline
+        }
 
-    t_NAME = r"\w[\w0-9_]*"
-    t_EQUAL = r"="
+    NAME = r"\w[\w0-9_]*"
+    EQUAL = r"="
 
-    t_LPAREN  = r'\('
-    t_RPAREN  = r'\)'
-    t_LBRACE  = r'\['
-    t_RBRACE  = r'\]'
-    t_LSQRB   = r'\{'
-    t_RSQRB   = r'\}'
+    LPAREN  = r'\('
+    RPAREN  = r'\)'
+    LBRACE  = r'\['
+    RBRACE  = r'\]'
+    LSQRB   = r'\{'
+    RSQRB   = r'\}'
 
-    t_PLUS     = r'\+'
-    t_MINUS    = r'-'
-    t_TIMES    = r'\*'
-    t_FLOORDIV = r'//'
-    t_DIVIDE   = r'/'
-    t_POWER    = r'\*\*'
-    t_MODULO   = r'%'
+    PLUS     = r'\+'
+    MINUS    = r'-'
+    TIMES    = r'\*'
+    FLOORDIV = r'//'
+    DIVIDE   = r'/'
+    POWER    = r'\*\*'
+    MODULO   = r'%'
+
+    @_(r"<-")
+    def ignore_blockcomment(self, t): # "<" (LT)'den önce olmak zorunda
+        block_count = 1
+        try:
+            while block_count:
+                self.index += 1
+                if self.text[self.index] == "-": # ->
+                    if self.text[self.index+1] == ">":
+                        block_count -= 1
+                        self.index += 1
+                elif self.text[self.index] == "<": # <-
+                    if self.text[self.index+1] == "-":
+                        block_count += 1
+                        self.index += 1
+        except IndexError:
+            pass # "<- kjadskajd (EOF)" gibi şeylerin mümkün olmasını istiyoruz
+        self.index += 1 # while'a girilmediği için ilk self.index +=1 1 kısmı işe yaramıyor
+
+    EQ = r"=="
+    LE = r"<="
+    GE = r">="
+    LT = r"<"
+    GT = r">"
+    NE = r"!="
+
+    COMMA     = r","
+    SEMICOLON = r";"
+    DOT       = r"\."
+    COLON     = r":"
+
+    ignore = " \t"
+    ignore_comment = r"\#.*" # "." yeni satır karakterini almıyor    
     
-    t_EQ = r"=="
-    t_LE = r"<="
-    t_GE = r">="
-    t_LT = r"<"
-    t_GT = r">"
-    t_NE = r"!="
-
-    t_COMMA     = r","
-    t_SEMICOLON = r";"
-
-    t_ignore = " \t"
 
 ##    literals = ""
 
-    def t_TRUE(self, t): r'doğru'; return t
-    def t_FALSE(self, t): r'yanlış'; return t
+    @_(r'doğru')
+    def TRUE(self, t): return t
+    @_(r'yanlış')
+    def FALSE(self, t): return t
 
-    def t_IF(self, t): r'eğer'; return t
-    def t_THEN(self, t): r'ise'; return t
-    def t_ELSE(self, t): r'değilse'; return t
+    @_(r'eğer')
+    def IF(self, t): return t
+    @_(r'ise')
+    def THEN(self, t): return t
+    @_(r'değilse')
+    def ELSE(self, t): return t
 
-    def t_WHILE(self, t): r'iken tekrarla'; return t
+    @_(r'iken tekrarla')
+    def WHILE(self, t): return t
 
-    def t_FLOAT(self, t):
-        r'\d+\.\d+' # 1. and .1 are invalid
+    @_(r'\d+\.\d+') # 1. and .1 are invalid
+    def FLOAT(self, t):
         t.value = float(t.value)
         return t
 
-    def t_NUMBER(self, t):
-        r'\d+'
+    @_(r'\d+')
+    def NUMBER(self, t):
         t.value = int(t.value)
         return t
 
-    def t_STRING(self, t): # needs rework
-        r'''(".*?")|('.*?')'''
+    @_(r'''(".*?")|('.*?')''')
+    def STRING(self, t): # needs rework
         t.value = literal_eval(t.value)
         return t
-
-    def t_NEWLINE(self, t):
-        r"(\n\r|\n|\r)+" # is this OKAY?
-        if t.value.startswith("\n\r"):
-            t.lexer.lineno += len(t.value) / 2
-        else:
-            t.lexer.lineno += len(t.value)
-        self.lexer.lastlexpos = t.lexer.lexpos
+    
+    @_(r"\n+") # is this OKAY?
+    def NEWLINE(self, t):
+        self.lineno += len(t.value)
         return t
 
-    def t_error(self, t):
+    def error(self, t):
         SyntaxError(f"Illegal character {t.value[0]!r} at {t.lineno}:{t.lexpos-self.lexer.lastlexpos}")
