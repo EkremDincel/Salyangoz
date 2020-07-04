@@ -47,22 +47,41 @@ class Lexer(Lexer):
         #other
         "COMMA",      # ,
         "SEMICOLON",  # ;
-        "NEWLINE",    # \n | \n\r
+        "NEWLINES",    # \n | \n\r
 ##        "COMMENT",    # #
         "DOT",        # .
         "COLON",      # :
 ##        "BLOCKCOMMENT" # <- -> # can nest in another block comment and multiline
         }
 
-    NAME = r"\w[\w0-9_]*"
+    @_(r'\d+\.\d+') # 1. and .1 are invalid
+    def FLOAT(self, t):
+        t.value = float(t.value)
+        return t
+
+    @_(r'\d+')
+    def NUMBER(self, t):
+        t.value = int(t.value)
+        return t
+
+    NAME = r"[\w_][\w0-9_]*"
+
+    #keywords
+    NAME["doğru"] = TRUE
+    NAME["yanlış"] = FALSE
+    NAME["eğer"] = IF
+    NAME["ise"] = THEN
+    NAME["değilse"] = ELSE
+    NAME["iken"] = WHILE 
+    
     EQUAL = r"="
 
     LPAREN  = r'\('
     RPAREN  = r'\)'
-    LBRACE  = r'\['
-    RBRACE  = r'\]'
-    LSQRB   = r'\{'
-    RSQRB   = r'\}'
+    LBRACE  = r'\{'
+    RBRACE  = r'\}'
+    LSQRB   = r'\['
+    RSQRB   = r'\]'
 
     PLUS     = r'\+'
     MINUS    = r'-'
@@ -88,7 +107,7 @@ class Lexer(Lexer):
                         self.index += 1
         except IndexError:
             pass # "<- kjadskajd (EOF)" gibi şeylerin mümkün olmasını istiyoruz
-        self.index += 1 # while'a girilmediği için ilk self.index +=1 1 kısmı işe yaramıyor
+        self.index += 1 # while'a girilmediği için ilk self.index += 1 kısmı işe yaramıyor
 
     EQ = r"=="
     LE = r"<="
@@ -108,38 +127,13 @@ class Lexer(Lexer):
 
 ##    literals = ""
 
-    @_(r'doğru')
-    def TRUE(self, t): return t
-    @_(r'yanlış')
-    def FALSE(self, t): return t
-
-    @_(r'eğer')
-    def IF(self, t): return t
-    @_(r'ise')
-    def THEN(self, t): return t
-    @_(r'değilse')
-    def ELSE(self, t): return t
-
-    @_(r'iken tekrarla')
-    def WHILE(self, t): return t
-
-    @_(r'\d+\.\d+') # 1. and .1 are invalid
-    def FLOAT(self, t):
-        t.value = float(t.value)
-        return t
-
-    @_(r'\d+')
-    def NUMBER(self, t):
-        t.value = int(t.value)
-        return t
-
-    @_(r'''(".*?")|('.*?')''')
-    def STRING(self, t): # needs rework
+    @_(r'''(".*?")|('.*?')''') # needs rework
+    def STRING(self, t): 
         t.value = literal_eval(t.value)
         return t
     
     @_(r"\n+") # is this OKAY?
-    def NEWLINE(self, t):
+    def NEWLINES(self, t):
         self.lineno += len(t.value)
         return t
 
