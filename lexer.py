@@ -72,7 +72,8 @@ class Lexer(Lexer):
     NAME["eğer"] = IF
     NAME["ise"] = THEN
     NAME["değilse"] = ELSE
-    NAME["iken"] = WHILE 
+    NAME["iken"] = WHILE
+    NAME["değil"] = NOT
     
     EQUAL = r"="
 

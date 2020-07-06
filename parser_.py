@@ -27,7 +27,8 @@ class Parser(Parser):
     precedence = (
        ('left', PLUS, MINUS),
        ('left', TIMES, DIVIDE, FLOORDIV, MODULO),
-       ('left', POWER)
+       ('left', POWER),
+       ('left', DOT)
     )
     
     start = "statements"
@@ -62,14 +63,6 @@ class Parser(Parser):
     def assign(self, p):
         return (Nodes.STOREATTR, p[0], p[2], p[4])
 
-    @_("eval_expr DOT NAME")
-    def var(self, p):
-        return (Nodes.LOADATTR, p[0], p[2])
-
-    @_("NAME")
-    def var(self, p):
-        return (Nodes.LOADNAME, p[0])
-
     @_("tuple_literal")
     @_("set_literal")
     @_("list_literal")
@@ -81,6 +74,10 @@ class Parser(Parser):
     @_("func_call")
     def eval_expr(self, p):
         return p[0]
+
+    @_("LPAREN eval_expr RPAREN")
+    def eval_expr(self, p):
+        return p[1]
 
     @_("NUMBER")
     @_("FLOAT")
@@ -100,6 +97,10 @@ class Parser(Parser):
     def func_call(self, p):
         return (Nodes.CALLFUNC, p[0], ())
 
+    @_("LPAREN eval_expr COMMA RPAREN")
+    def tuple_literal(self, p):
+        return (Nodes.BUILDTUPLE, (p[1],))
+
     @_("LPAREN arglist RPAREN")
     def tuple_literal(self, p):
         return (Nodes.BUILDTUPLE, p[1])
@@ -112,6 +113,37 @@ class Parser(Parser):
     def list_literal(self, p):
         return (Nodes.BUILDLIST, p[1])
 
+    @_("eval_expr PLUS eval_expr")
+    @_("eval_expr MINUS eval_expr")
+    @_("eval_expr TIMES eval_expr")
+    @_("eval_expr DIVIDE eval_expr")
+    @_("eval_expr FLOORDIV eval_expr")
+    @_("eval_expr POWER eval_expr")
+    @_("eval_expr MODULO eval_expr")
+    def eval_expr(self, p):
+        if p[0][0] == p[2][0] == Nodes.LOADCONST:
+            return (Nodes.LOADCONST, operator_dict[p[1]](p[0][1], p[2][1]))
+        return (Nodes.OP, p[1], p[0], p[2])
+
+    @_("eval_expr EQ eval_expr")
+    @_("eval_expr NE eval_expr")
+    @_("eval_expr LE eval_expr")
+    @_("eval_expr GE eval_expr")
+    @_("eval_expr LT eval_expr")
+    @_("eval_expr GT eval_expr")
+    def eval_expr(self, p):
+        if p[0][0] == p[2][0] == Nodes.LOADCONST:
+            return (Nodes.LOADCONST, operator_dict[p[1]](p[0][1], p[2][1]))
+        return (Nodes.CMP, p[1], p[0], p[2])
+
+    @_("eval_expr DOT NAME")
+    def var(self, p):
+        return (Nodes.LOADATTR, p[0], p[2])
+
+    @_("NAME")
+    def var(self, p):
+        return (Nodes.LOADNAME, p[0])
+        
     def error(self, p):
         print(self.statestack, self.symstack)
         if p is None:
@@ -122,6 +154,7 @@ if __name__ == "__main__":
     from lexer import Lexer
     p = Parser()
     p.tokens = Lexer.tokens
-    kod = """a(1,2);"""
+    kod = """
+a<2<3;"""
     ast = p.parse(Lexer().tokenize(kod))
     print(ast)

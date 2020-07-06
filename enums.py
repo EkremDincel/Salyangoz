@@ -15,5 +15,8 @@ class Nodes(Enum):
      #pop
      POPLAST,
      #function
-     CALLFUNC
-    ) = range(11)
+     CALLFUNC,
+     #operations
+     OP,
+     CMP,
+    ) = range(13)
